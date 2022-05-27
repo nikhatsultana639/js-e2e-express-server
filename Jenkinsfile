@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('SourceCode') {
             steps {
-                git branch: 'main', url: 'https://github.com/nikhatsultana639/spring-petclinic.git'
+                git branch: 'main', url: 'https://github.com/nikhatsultana639/js-e2e-express-server.git'
             }
         }
         stage('Build the Code and sonarqube-analysis') {
