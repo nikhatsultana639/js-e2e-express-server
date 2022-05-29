@@ -21,13 +21,7 @@ pipeline {
         steps{
         sh "npm pack"
         }}
-    stage('Build the Code and sonarqube-analysis') {
-            steps {
-                withSonarQubeEnv('sonarQube') {
-                    sh "npm run sonar"
-                }
-            }
-}
+   
     }
 
     }
