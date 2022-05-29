@@ -1,4 +1,6 @@
-node('built-in') {
+pipeline {
+    agent { label 'built-in' }
+    stages{
     stage('clone from git')
     {
      git branch: 'main', url: 'https://github.com/nikhatsultana639/js-e2e-express-server.git'
@@ -24,5 +26,6 @@ node('built-in') {
                     sh script: "npm run sonar"
                 }
             }
+}
 }
 }
