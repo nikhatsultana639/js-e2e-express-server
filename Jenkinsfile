@@ -3,8 +3,9 @@ pipeline {
     stages{
     stage('clone from git')
     {
+        step}
      git branch: 'main', url: 'https://github.com/nikhatsultana639/js-e2e-express-server.git'
-    }
+    }}
     stage('build')
     {
         steps{
