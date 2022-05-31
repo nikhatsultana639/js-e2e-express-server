@@ -29,7 +29,7 @@ pipeline {
      stage("build & SonarQube analysis") {          
          steps {              
           withSonarQubeEnv('sonarQube') {                 
-       sh '''sonar-scanner \\                       
+       sh '''SonarScanner \\                       
      -Dsonar.projectKey=nodejs \\                        
      -Dsonar.sources=. \\                       
      -Dsonar.host.url=http://10.0.0.4:9000 \\                       
