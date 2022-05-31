@@ -26,14 +26,15 @@ pipeline {
         sh "npm pack"
         }
     }
-    stage("build & SonarQube analysis") {
-            steps {
-             def scannerHome = tool 'SonarQube';
-                withsonarQubeEnv() {
-                    sh "${scannerHome}/bin/sonar-scanner --version"
-            }
-         }
-    }
+     stage("build & SonarQube analysis") {          
+         steps {              
+          withSonarQubeEnv('sonarQube') {                 
+       sh '''sonar-scanner \\                       
+     -Dsonar.projectKey=nodejs \\                        
+     -Dsonar.sources=. \\                       
+     -Dsonar.host.url=http://10.0.0.4:9000 \\                       
+     -Dsonar.login=be92a549674e30a274f9264ab933fb5797c0c767'''              }            }       
+                                         }       
         stage("Quality Gate") {
             steps {
               timeout(time: 5, unit: 'MINUTES') {
