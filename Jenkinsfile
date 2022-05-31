@@ -5,7 +5,8 @@ pipeline {
     {
         steps{
      git branch: 'main', url: 'https://github.com/nikhatsultana639/js-e2e-express-server.git'
-    }}
+    }
+    }
         stage('installing dependencies')
         {
             steps{
@@ -17,12 +18,14 @@ pipeline {
     {
         steps {
         sh "npm test"
-        }}
+        }
+    }
     stage('package')
     {
         steps{
         sh "npm pack"
-        }}
+        }
+    }
     stage("build & SonarQube analysis") {
             steps {
               withSonarQubeEnv('sonarQube') {
@@ -42,5 +45,4 @@ pipeline {
             }
           }
     }
-
     }
