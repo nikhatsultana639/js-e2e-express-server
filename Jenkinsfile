@@ -23,7 +23,7 @@ pipeline {
         }}
     stage("build & SonarQube analysis") {
             steps {
-              withSonarQubeEnv('sonarqube') {
+              withSonarQubeEnv('sonarQube') {
                   sh '''sonar-scanner \\
                         -Dsonar.projectKey=nodejs \\
                         -Dsonar.sources=. \\
