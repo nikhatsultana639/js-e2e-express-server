@@ -33,7 +33,7 @@ pipeline {
      -Dsonar.projectKey=nodejs \\                        
      -Dsonar.sources=. \\                       
      -Dsonar.host.url=http://10.0.0.4:9000 \\                       
-     -Dsonar.login=be92a549674e30a274f9264ab933fb5797c0c767'''              }            }       
+     -Dsonar.login=541e5dead3bdc3fb2d610068aa0f5c5a10b08a7c'''              }            }       
                                          }       
         stage("Quality Gate") {
             steps {
