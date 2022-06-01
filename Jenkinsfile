@@ -26,21 +26,6 @@ pipeline {
         sh "npm pack"
         }
     }
-     stage("build & SonarQube analysis") {          
-         steps {              
-          withSonarQubeEnv('sonarQube') {                 
-       sh '''sonar-scanner \\                       
-     -Dsonar.projectKey=nodejs \\                        
-     -Dsonar.sources=. \\                       
-     -Dsonar.host.url=http://10.0.0.4:9000 \\                       
-     -Dsonar.login=541e5dead3bdc3fb2d610068aa0f5c5a10b08a7c'''              }            }       
-                                         }       
-        stage("Quality Gate") {
-            steps {
-              timeout(time: 5, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: false
-              }
-            }
-          }
+   
     }
     }
