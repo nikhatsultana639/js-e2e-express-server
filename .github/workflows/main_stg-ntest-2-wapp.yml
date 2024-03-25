@@ -1,0 +1,37 @@
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: Azure App Service - stg-ntest-2-wapp(Production), Build and deploy container app
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # checkout the repo
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@master
+
+
+    - uses: azure/docker-login@v1
+      with:
+        login-server: stgcdrxacr1.azurecr.io/
+        username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_9A80F6C2937D43258F0B9D25F5EF4B48 }}
+        password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_02C91033ACFC46B09611B389335BB7DC }}
+
+    - run: |
+        docker build . -t stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_9A80F6C2937D43258F0B9D25F5EF4B48 }}/stg-ntest-2-wapp-img:${{ github.sha }}
+        docker push stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_9A80F6C2937D43258F0B9D25F5EF4B48 }}/stg-ntest-2-wapp-img:${{ github.sha }}
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: stg-ntest-2-wapp
+        slot-name: Production
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3242BEE3FBCB4B0FB180FB5CA2DF89BA }}
+        images: stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_9A80F6C2937D43258F0B9D25F5EF4B48 }}/stg-ntest-2-wapp-img:${{ github.sha }}
+
