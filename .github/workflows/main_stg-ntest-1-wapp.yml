@@ -1,71 +1,37 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
 
-name: Build and deploy Node.js app to Azure Web App - stg-ntest-1-wapp
+name: Azure App Service - stg-ntest-1-wapp(Production), Build and deploy container app
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+    # checkout the repo
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@master
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
 
-      - name: npm install, build, and test
-        run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+    - uses: azure/docker-login@v1
+      with:
+        login-server: stgcdrxacr1.azurecr.io/
+        username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_6A2FD1E9E519474BB69A4A59E360064C }}
+        password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_F5D206A428304252A36AA1A174D88C47 }}
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+    - run: |
+        docker build . -t stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_6A2FD1E9E519474BB69A4A59E360064C }}/stg-ntest-1-wapp-image:${{ github.sha }}
+        docker push stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_6A2FD1E9E519474BB69A4A59E360064C }}/stg-ntest-1-wapp-image:${{ github.sha }}
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-app
-          path: release.zip
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: stg-ntest-1-wapp
+        slot-name: Production
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D0E8A13B56EA41A8ABB6C9D7F8D7CE22 }}
+        images: stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_6A2FD1E9E519474BB69A4A59E360064C }}/stg-ntest-1-wapp-image:${{ github.sha }}
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: node-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_005AC87B179A49B596286E2037B6319C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F8CC70F5BA845BB9E7D3DA2988F1B7C }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9D73C62538F4496BB30AD5F1CDD9A603 }}
-
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'stg-ntest-1-wapp'
-          slot-name: 'Production'
-          package: .
-          
