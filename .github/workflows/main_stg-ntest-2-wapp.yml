@@ -1,51 +1,37 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
 
-name: Build and deploy container app to Azure Web App - stg-ntest-2-wapp
+name: Azure App Service - stg-ntest-2-wapp(Production), Build and deploy container app
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: 'self-hosted'
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Log in to registry
-      uses: docker/login-action@v2
-      with:
-        registry: https://stgcdrxacr1.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_34b5e8ca90cc48ada119464570e0e81f }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_ad142d652cc445e69f16f47606391ab1 }}
-
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: stgcdrxacr1.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_34b5e8ca90cc48ada119464570e0e81f }}/test-wf-image:${{ github.sha }}
-        file: ./Dockerfile
-
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
+    # checkout the repo
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@master
+
+
+    - uses: azure/docker-login@v1
       with:
-        app-name: 'stg-ntest-2-wapp'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_f40ea934edeb44cdb772c15f8f05d5e7 }}
-        images: 'stgcdrxacr1.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_34b5e8ca90cc48ada119464570e0e81f }}/test-wf-image:${{ github.sha }}'
+        login-server: stgcdrxacr1.azurecr.io/
+        username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_7812FF660AE1467DB99169CD1B4B98E8 }}
+        password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_32DB9432D02C468E834E2DFC1410E8AE }}
+
+    - run: |
+        docker build . -t stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_7812FF660AE1467DB99169CD1B4B98E8 }}/stg-ntest-2-wapp-img:${{ github.sha }}
+        docker push stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_7812FF660AE1467DB99169CD1B4B98E8 }}/stg-ntest-2-wapp-img:${{ github.sha }}
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: stg-ntest-2-wapp
+        slot-name: Production
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4892D20149CA459A9860057EF4A45585 }}
+        images: stgcdrxacr1.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_7812FF660AE1467DB99169CD1B4B98E8 }}/stg-ntest-2-wapp-img:${{ github.sha }}
+
